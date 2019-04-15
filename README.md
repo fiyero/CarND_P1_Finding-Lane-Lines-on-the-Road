@@ -51,6 +51,5 @@ A browser window will appear showing the contents of the current directory.  Cli
 
 **Step 3:** Complete the project and submit both the Ipython notebook and the project writeup
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
+![My review](https://raw.githubusercontent.com/fiyero/CarND_P1_Finding-Lane-Lines-on-the-Road/master/r1.JPG)
+![2](https://raw.githubusercontent.com/fiyero/CarND_P1_Finding-Lane-Lines-on-the-Road/master/r2.JPG) 

@@ -1,58 +1,47 @@
-# **Finding Lane Lines on the Road** 
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
+# Finding Lane Lines on the Road
+## https://medium.com/@patrickhk/self-driving-car-basic-car-lane-line-detection-a784be871157
 
-<img src="examples/laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
+Perception is one of the most important modules of self driving car. Currently I have enrolled the Udacity Self Driving Car Engineer Nanodegree and the first project is to build a basic car lane detection with the help of OpenCV, Canny detection and Hough Transform. Let’s see the result<br/>
 
-Overview
----
+## My Result
+![p1](https://cdn-images-1.medium.com/max/800/1*F269ksHcBaJht-u-0x23vw.png)<br/>
+![p2](https://cdn-images-1.medium.com/max/800/1*A8jeg0K8G0YwmmXLY3lTJA.png)<br/>
+https://www.youtube.com/watch?v=TlrkfVtzdeg<br/>
 
-When we drive, we use our eyes to decide where to go.  The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle.  Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
-
-In this project you will detect lane lines in images using Python and OpenCV.  OpenCV means "Open-Source Computer Vision", which is a package that has many useful tools for analyzing images.  
-
-To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md 
-
-To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
+### Read the image into np array
+We have to read and turn the image file into numpy array with the help of cv2.imread or mpimg.imread . Note the color channel of cv2 and matplotlib are different<br/>
+![p3](https://cdn-images-1.medium.com/max/800/1*KTyo8dP9Wmz_XVmnseWt9g.png)<br/>
 
 
-Creating a Great Writeup
----
-For this project, a great writeup should provide a detailed response to the "Reflection" section of the [project rubric](https://review.udacity.com/#!/rubrics/322/view). There are three parts to the reflection:
+### Turn the image into gray scale for Canny detection
+We use cv2.cvtColor function to turn the img array into gray scale as Canny detection read gray scale img. Since I read image by using matplotlib therefore I will use cv2.COLOR_RGB2GRAY<br/>
 
-1. Describe the pipeline
+### Apply Canny detection
+It is optional to apply Gaussian smoothing before canny detection as it is already embedded in the cv2.Canny function. I use the parameter low_threshold=50, high_threshold=150, the low:high ratio is suggested to be 1:3 as the rule of thumb to get the edge image.<br/>
 
-2. Identify any shortcomings
+![p4](https://cdn-images-1.medium.com/max/800/1*9w_gk0kmkn3ThRMbaQcC2g.png)
 
-3. Suggest possible improvements
+### Create region of interest
+As you can see there are many edges detected by Canny detection but this is actually not we want as it contains many noises, such as the shape of the tree and mountain. We use cv2.fillPoly to create a region like this.<br/>
+![p6](https://cdn-images-1.medium.com/max/800/1*yppTW0xweOIYxi5gsOaBtA.png)
+Then we apply masking, which is to select the pixel where got “activated” by canny detection and within the above region. As a result we got this<br/>
+![p7](https://cdn-images-1.medium.com/max/800/1*JdefwSgu68vFYUTKcKelwg.png)
 
-We encourage using images in your writeup to demonstrate how your pipeline works.  
+### Hough transform and draw lane line
+The edge we got from Canny detection actually are many dots. We apply cv2.HoughLinesP function to get “lines”. I use the following parameters, rho = 2,threshold = 50, min_line_length = 100 and max_line_gap = 160.<br/>
 
-All that said, please be concise!  We're not looking for you to write a book here: just a brief description.
+Lines are actually a list of many x1,y1,x2,y2 coordinates. With all these line coordinate, we can iterate and find the best first order polynomial line by using np.polyfit. Then we use cv2.draw to draw the two lines(left lane and right lane). We can apply some filtering criteria such as slope and angle to help removing noise.<br/>
 
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md). 
+![p8](https://cdn-images-1.medium.com/max/800/1*urZy5hH-ZqzQhNUZdp9AYQ.png)
+### Stack the draw lane with the original img
+Then what we do is to stack the lane line in the original image with the help of cv2.addWeighted function.<br/>
+![p10](https://cdn-images-1.medium.com/max/800/1*AvIvQ9_cAQOql6Mq35FYBA.png)
+### Apply to video input
+Same principle but different source input. We can use the VideoFileClip function from moviepy. Then we can save the output video and visualize it within jupyter notebook.<br/>
+![p11](https://cdn-images-1.medium.com/max/800/1*6_yvgKvXNXx_sh37YVakYA.png)
 
-
-The Project
----
-
-## If you have already installed the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) you should be good to go!   If not, you should install the starter kit to get started on this project. ##
-
-**Step 1:** Set up the [CarND Term1 Starter Kit](https://classroom.udacity.com/nanodegrees/nd013/parts/fbf77062-5703-404e-b60c-95b78b2f3f9e/modules/83ec35ee-1e02-48a5-bdb7-d244bd47c2dc/lessons/8c82408b-a217-4d09-b81d-1bda4c6380ef/concepts/4f1870e0-3849-43e4-b670-12e6f2d4b7a7) if you haven't already.
-
-**Step 2:** Open the code in a Jupyter Notebook
-
-You will complete the project code in a Jupyter notebook.  If you are unfamiliar with Jupyter Notebooks, check out <A HREF="https://www.packtpub.com/books/content/basics-jupyter-notebook-and-python" target="_blank">Cyrille Rossant's Basics of Jupyter Notebook and Python</A> to get started.
-
-Jupyter is an Ipython notebook where you can run blocks of code and see results interactively.  All the code for this project is contained in a Jupyter notebook. To start Jupyter in your browser, use terminal to navigate to your project directory and then run the following command at the terminal prompt (be sure you've activated your Python 3 carnd-term1 environment as described in the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) installation instructions!):
-
-`> jupyter notebook`
-
-A browser window will appear showing the contents of the current directory.  Click on the file called "P1.ipynb".  Another browser window will appear displaying the notebook.  Follow the instructions in the notebook to complete the project.  
-
-**Step 3:** Complete the project and submit both the Ipython notebook and the project writeup
-
-## My Result<br/>
-https://www.youtube.com/watch?v=TlrkfVtzdeg
-
-![My review](https://raw.githubusercontent.com/fiyero/CarND_P1_Finding-Lane-Lines-on-the-Road/master/r1.JPG)
-![2](https://raw.githubusercontent.com/fiyero/CarND_P1_Finding-Lane-Lines-on-the-Road/master/r2.JPG) 
+-------------------------------------------------------------------------------------------------------------------------------------
+### More about me
+[[:pencil:My Medium]](https://medium.com/@patrickhk)<br/>
+[[:house_with_garden:My Website]](https://www.fiyeroleung.com/)<br/>
+[[:space_invader:	My Github]](https://github.com/fiyero)<br/>
